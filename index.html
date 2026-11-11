@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Élite - Scouting Deportivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fondo: #0f212e;
+            --superficie: #1a2c38;
+            --superficie-2: #213743;
+            --borde: #2f4553;
+            --borde-hover: #557086;
+            --texto: #ffffff;
+            --texto-2: #b1bad3;
+            --verde: #00e701;
+            --verde-hover: #1fff20;
+            --azul: #1475e1;
+            --dorado: #ffc800;
+            --rojo: #ed4163;
+            --cesped-1: #12402a;
+            --cesped-2: #0f3823;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+        }
+        svg.icono {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        /* ---------- Barra superior ---------- */
+        header {
+            background: var(--superficie);
+            border-bottom: 1px solid var(--borde);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .barra-superior {
+            max-width: 1080px;
+            height: 64px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .marca { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.3px; }
+        .marca span { color: var(--verde); }
+        .marca svg { width: 34px; height: 34px; }
+        .chip-api {
+            display: flex;
+            align-items: center;
+            background: var(--fondo);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--texto-2);
+            white-space: nowrap;
+        }
+        .punto { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+        .punto.on { background: var(--verde); box-shadow: 0 0 8px var(--verde); }
+        .punto.off { background: var(--rojo); }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            max-width: 1080px;
+            margin: 28px auto 0;
+            padding: 0 24px;
+        }
+        .hero-caja {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 24px;
+            align-items: center;
+            background: linear-gradient(120deg, var(--superficie) 0%, #16303d 55%, #123a2c 100%);
+            border-radius: 12px;
+            padding: 28px 28px 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        .insignia {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 231, 1, 0.12);
+            color: var(--verde);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 6px 10px;
+            border-radius: 20px;
+        }
+        .insignia svg { width: 14px; height: 14px; }
+        .hero h1 { margin: 14px 0 0; font-size: 2rem; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px; }
+        .hero h1 span { color: var(--verde); }
+        .hero p { margin: 10px 0 0; color: var(--texto-2); font-size: 0.95rem; line-height: 1.5; max-width: 470px; }
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .estadistica {
+            background: rgba(15, 33, 46, 0.7);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .estadistica .ico { color: var(--verde); display: flex; }
+        .estadistica strong { display: block; margin-top: 6px; font-size: 1.05rem; font-weight: 800; }
+        .estadistica small { color: var(--texto-2); font-size: 0.72rem; font-weight: 500; }
+        .cancha-hero { width: 100%; height: auto; display: block; }
+        .radar-barrido { transform-origin: 200px 130px; animation: girar 4s linear infinite; }
+        .pulso { animation: latir 1.6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+        @keyframes girar { to { transform: rotate(360deg); } }
+        @keyframes latir { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.35); } }
+
+        /* ---------- Contenido principal ---------- */
+        main {
+            max-width: 1080px;
+            margin: 20px auto 24px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: var(--superficie);
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .card-titulo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .card-titulo .burbuja {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: var(--superficie-2);
+            color: var(--verde);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 16px 0 7px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--texto-2);
+        }
+        label svg.icono { width: 15px; height: 15px; }
+        input {
+            width: 100%;
+            padding: 11px 12px;
+            background: var(--fondo);
+            color: var(--texto);
+            border: 2px solid var(--borde);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+        input:hover, input:focus { border-color: var(--borde-hover); }
+        .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .fila label { margin-top: 16px; }
+        .ayuda { display: flex; align-items: center; gap: 6px; margin-top: 7px; color: var(--texto-2); font-size: 0.76rem; }
+        .ayuda svg.icono { width: 14px; height: 14px; }
+        .oculto { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+        /* Selector de posiciones con íconos */
+        .posiciones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .pos {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 4px 10px;
+            background: var(--fondo);
+            color: var(--texto-2);
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+        }
+        .pos svg.icono { width: 24px; height: 24px; }
+        .pos:hover { border-color: var(--borde-hover); color: var(--texto); }
+        .pos.activa { border-color: var(--verde); color: var(--verde); background: rgba(0, 231, 1, 0.07); }
+
+        .btn-primario {
+            margin-top: 22px;
+            width: 100%;
+            padding: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--verde);
+            color: #05121a;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 231, 1, 0.22);
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .btn-primario:hover { background: var(--verde-hover); }
+        .btn-primario:active { transform: scale(0.98); }
+        .btn-primario:disabled { background: var(--superficie-2); color: var(--texto-2); box-shadow: none; cursor: wait; }
+
+        /* ---------- Resultado ---------- */
+        .vacio {
+            margin-top: 16px;
+            padding: 22px 16px 26px;
+            text-align: center;
+            color: var(--texto-2);
+            background: var(--fondo);
+            border-radius: 8px;
+        }
+        .vacio svg { width: 170px; height: auto; }
+        .vacio p { margin: 10px 0 0; font-size: 0.9rem; }
+        .ficha {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 16px;
+            padding: 14px;
+            background: var(--fondo);
+            border-radius: 8px;
+        }
+        .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--superficie-2);
+            color: var(--texto-2);
+            flex-shrink: 0;
+        }
+        .avatar svg.icono { width: 28px; height: 28px; }
+        .ficha-nombre { font-weight: 800; font-size: 1.02rem; word-break: break-word; }
+        .ficha-pos { display: flex; align-items: center; gap: 6px; margin-top: 3px; color: var(--texto-2); font-size: 0.82rem; font-weight: 600; }
+        .ficha-pos svg.icono { width: 14px; height: 14px; }
+        .etiqueta {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .etiqueta svg.icono { width: 15px; height: 15px; }
+        .elite { background: var(--verde); color: #05121a; }
+        .estandar { background: var(--azul); color: #fff; }
+
+        .medidor-zona { display: grid; grid-template-columns: 130px 1fr; gap: 18px; align-items: center; margin-top: 18px; }
+        .medidor { position: relative; width: 130px; height: 130px; }
+        .medidor svg { width: 130px; height: 130px; transform: rotate(-90deg); }
+        .medidor .pista { fill: none; stroke: var(--fondo); stroke-width: 12; }
+        .medidor .arco { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+        .medidor-texto { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .medidor-texto strong { font-size: 1.2rem; font-weight: 800; }
+        .medidor-texto small { color: var(--texto-2); font-size: 0.7rem; font-weight: 600; }
+        .titulo-prob { font-size: 0.82rem; font-weight: 600; color: var(--texto-2); }
+        .barra {
+            width: 100%;
+            height: 30px;
+            background: var(--fondo);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 8px 0 6px;
+        }
+        .barra-relleno {
+            height: 100%;
+            width: 0;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            line-height: 30px;
+            text-align: right;
+            padding-right: 10px;
+            transition: width 0.9s ease, background 0.4s ease;
+        }
+        .nota-umbral { color: var(--texto-2); font-size: 0.74rem; }
+        .datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+        .dato {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--fondo);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .dato .ico { color: var(--texto-2); display: flex; }
+        .dato small { display: block; color: var(--texto-2); font-size: 0.72rem; font-weight: 500; }
+        .dato strong { font-size: 0.95rem; }
+        .recomendacion {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            line-height: 1.4;
+            border-left: 3px solid;
+        }
+        .recomendacion strong { display: block; margin-bottom: 2px; }
+        .recomendacion svg.icono { margin-top: 1px; }
+        .error {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            background: rgba(237, 65, 99, 0.12);
+            color: var(--rojo);
+            font-weight: 600;
+        }
+
+        /* ---------- Cómo funciona ---------- */
+        .pasos {
+            max-width: 1080px;
+            margin: 0 auto 24px;
+            padding: 0 24px;
+        }
+        .pasos h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 1rem; }
+        .pasos h3 svg.icono { color: var(--verde); }
+        .pasos-lista { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .paso {
+            background: var(--superficie);
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+        }
+        .paso .num {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            color: var(--borde);
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+        .paso .ico {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--superficie-2);
+            color: var(--verde);
+        }
+        .paso .ico svg.icono { width: 22px; height: 22px; }
+        .paso strong { display: block; margin-top: 12px; font-size: 0.9rem; }
+        .paso p { margin: 4px 0 0; color: var(--texto-2); font-size: 0.78rem; line-height: 1.45; }
+
+        footer {
+            border-top: 1px solid var(--borde);
+            padding: 18px 24px;
+            text-align: center;
+            color: var(--texto-2);
+            font-size: 0.76rem;
+        }
+
+        @media (max-width: 860px) {
+            .hero-caja { grid-template-columns: 1fr; }
+            .estadisticas { grid-template-columns: repeat(2, 1fr); }
+            .pasos-lista { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 700px) {
+            header, .hero, main, .pasos { padding-left: 16px; padding-right: 16px; }
+            main { grid-template-columns: 1fr; }
+            .hero-caja { padding: 20px 16px; }
+            .hero h1 { font-size: 1.6rem; }
+            .chip-api { display: none; }
+            .medidor-zona { grid-template-columns: 1fr; justify-items: center; }
+            .pasos-lista { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biblioteca de íconos SVG -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-balon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7l4.2 3-1.6 5h-5.2l-1.6-5z"/><path d="M12 2v5M16.2 10l5-1.6M14.6 15l3 4.2M9.4 15l-3 4.2M7.8 10l-5-1.6"/></symbol>
+            <symbol id="i-usuario" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></symbol>
+            <symbol id="i-camiseta" viewBox="0 0 24 24"><path d="M8 3L3 6l2 5 3-1v11h8V10l3 1 2-5-5-3c-.8 1.8-2.3 3-4 3S8.8 4.8 8 3z"/></symbol>
+            <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+            <symbol id="i-regla" viewBox="0 0 24 24"><path d="M4 21V3h6v18z"/><path d="M4 7h3M4 11h4M4 15h3M4 19h4"/><path d="M17 4v16M14.5 6.5L17 4l2.5 2.5M14.5 17.5L17 20l2.5-2.5"/></symbol>
+            <symbol id="i-estrella" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.9z"/></symbol>
+            <symbol id="i-trofeo" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></symbol>
+            <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6.5-6.5"/><circle cx="15.5" cy="9" r="1" fill="currentColor"/></symbol>
+            <symbol id="i-diana" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></symbol>
+            <symbol id="i-flechas" viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/><path d="M12 3v4M12 17v4"/></symbol>
+            <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+            <symbol id="i-guante" viewBox="0 0 24 24"><path d="M7 21v-4l-3-4.5a1.6 1.6 0 0 1 2.6-1.8L8 12.5V5a1.5 1.5 0 0 1 3 0v5V4a1.5 1.5 0 0 1 3 0v6V5a1.5 1.5 0 0 1 3 0v6-3a1.5 1.5 0 0 1 3 0v7c0 3-2 6-5 6z"/></symbol>
+            <symbol id="i-base" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+            <symbol id="i-arbol" viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="3.5" cy="20" r="1.5"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M11 5.7L7 10.3M13 5.7l4 4.6M5.2 13.8l-1.2 4.7M6.8 13.8l1.6 4.7M18 14v4.5"/></symbol>
+            <symbol id="i-api" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+            <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M6 13l3-3 2.5 2 4-4.5"/></symbol>
+            <symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></symbol>
+            <symbol id="i-rayo" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+            <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+            <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 10v4M12 17v.5"/></symbol>
+            <symbol id="i-binoculares" viewBox="0 0 24 24"><circle cx="6.5" cy="16" r="4"/><circle cx="17.5" cy="16" r="4"/><path d="M10.5 16h3M4 13l2-8h3l1 7M20 13l-2-8h-3l-1 7"/></symbol>
+            <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></symbol>
+            <symbol id="i-archivo" viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></symbol>
+        </defs>
+    </svg>
+
+    <header>
+        <div class="barra-superior">
+            <div class="marca">
+                <svg viewBox="0 0 40 40" aria-hidden="true">
+                    <circle cx="20" cy="20" r="18" fill="#0f212e" stroke="#00e701" stroke-width="2"/>
+                    <circle cx="20" cy="20" r="11" fill="none" stroke="#2f4553" stroke-width="1.5"/>
+                    <path d="M20 20 L32 9 A18 18 0 0 1 38 20 Z" fill="#00e701" opacity="0.35"/>
+                    <path d="M20 20 L32 9" stroke="#00e701" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M20 14.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#ffc800"/>
+                </svg>
+                Radar<span>Élite</span>
+            </div>
+            <div id="estado-api" class="chip-api">Conectando…</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-caja">
+            <div>
+                <span class="insignia"><svg class="icono"><use href="#i-radar"/></svg>Scouting con Machine Learning</span>
+                <h1>Detecta el próximo<br><span>talento Élite</span></h1>
+                <p>Ingresa los datos de un jugador y un Random Forest entrenado con miles de perfiles estima la probabilidad de que pertenezca al Top 25 % de valor comercial.</p>
+                <div class="estadisticas">
+                    <div class="estadistica"><span class="ico"><svg class="icono"><use href="#i-usuario"/></svg></span><strong>41.495</strong><small>jugadores analizados</small></div>
+                    <div class="estadistica"><span class="ico"><svg class="icono"><use href="#i-arbol"/></svg></span><strong>200</strong><small>árboles de decisión</small></div>
+                    <div class="estadistica"><span class="ico"><svg class="icono"><use href="#i-diana"/></svg></span><strong>0,694</strong><small>AUC en test</small></div>
+                    <div class="estadistica"><span class="ico"><svg class="icono"><use href="#i-trofeo"/></svg></span><strong>€700K</strong><small>umbral Élite (P75)</small></div>
+                </div>
+            </div>
+
+            <!-- Ilustración: cancha vista desde arriba con radar de scouting -->
+            <svg class="cancha-hero" viewBox="0 0 400 260" aria-hidden="true">
+                <defs>
+                    <linearGradient id="g-barrido" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0" stop-color="#00e701" stop-opacity="0"/>
+                        <stop offset="1" stop-color="#00e701" stop-opacity="0.35"/>
+                    </linearGradient>
+                    <clipPath id="c-cancha"><rect x="10" y="10" width="380" height="240" rx="10"/></clipPath>
+                </defs>
+                <g clip-path="url(#c-cancha)">
+                    <rect x="10" y="10" width="380" height="240" fill="#12402a"/>
+                    <rect x="10" y="10" width="47.5" height="240" fill="#0f3823"/>
+                    <rect x="105" y="10" width="47.5" height="240" fill="#0f3823"/>
+                    <rect x="200" y="10" width="47.5" height="240" fill="#0f3823"/>
+                    <rect x="295" y="10" width="47.5" height="240" fill="#0f3823"/>
+                    <g fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2">
+                        <rect x="22" y="22" width="356" height="216"/>
+                        <line x1="200" y1="22" x2="200" y2="238"/>
+                        <circle cx="200" cy="130" r="32"/>
+                        <rect x="22" y="80" width="50" height="100"/>
+                        <rect x="22" y="105" width="20" height="50"/>
+                        <rect x="328" y="80" width="50" height="100"/>
+                        <rect x="358" y="105" width="20" height="50"/>
+                        <path d="M72 108 A26 26 0 0 1 72 152"/>
+                        <path d="M328 108 A26 26 0 0 0 328 152"/>
+                    </g>
+                    <circle cx="200" cy="130" r="2.5" fill="#ffffff" fill-opacity="0.7"/>
+                    <!-- Radar -->
+                    <g class="radar-barrido"><path d="M200 130 L330 130 A130 130 0 0 0 292 38 Z" fill="url(#g-barrido)"/></g>
+                    <circle cx="200" cy="130" r="80" fill="none" stroke="#00e701" stroke-opacity="0.25" stroke-dasharray="4 6"/>
+                    <circle cx="200" cy="130" r="120" fill="none" stroke="#00e701" stroke-opacity="0.18" stroke-dasharray="4 6"/>
+                    <!-- Jugadores -->
+                    <g fill="#1475e1" stroke="#0f212e" stroke-width="2">
+                        <circle cx="40" cy="130" r="7"/>
+                        <circle cx="95" cy="70" r="7"/><circle cx="95" cy="190" r="7"/><circle cx="85" cy="130" r="7"/>
+                        <circle cx="150" cy="95" r="7"/><circle cx="150" cy="165" r="7"/><circle cx="175" cy="130" r="7"/>
+                        <circle cx="245" cy="60" r="7"/><circle cx="245" cy="200" r="7"/><circle cx="290" cy="110" r="7"/>
+                    </g>
+                    <!-- Jugador detectado como Élite -->
+                    <circle class="pulso" cx="300" cy="165" r="15" fill="#00e701" fill-opacity="0.25"/>
+                    <circle cx="300" cy="165" r="8" fill="#00e701" stroke="#0f212e" stroke-width="2"/>
+                    <path d="M300 141l2 4.2 4.6.6-3.3 3.2.8 4.6-4.1-2.2-4.1 2.2.8-4.6-3.3-3.2 4.6-.6z" fill="#ffc800"/>
+                    <!-- Balón -->
+                    <circle cx="318" cy="182" r="5" fill="#ffffff"/>
+                    <path d="M318 179.5l2 1.4-.8 2.3h-2.4l-.8-2.3z" fill="#0f212e"/>
+                </g>
+                <rect x="10" y="10" width="380" height="240" rx="10" fill="none" stroke="#2f4553" stroke-width="2"/>
+            </svg>
+        </div>
+    </section>
+
+    <main>
+        <section class="card">
+            <div class="card-titulo">
+                <span class="burbuja"><svg class="icono"><use href="#i-archivo"/></svg></span>
+                <h2>Datos del Jugador</h2>
+            </div>
+            <form id="formulario">
+                <label for="jugador"><svg class="icono"><use href="#i-usuario"/></svg>Nombre</label>
+                <input id="jugador" type="text" value="Candidato A" required>
+
+                <label><svg class="icono"><use href="#i-camiseta"/></svg>Posición</label>
+                <div class="posiciones" id="posiciones">
+                    <button type="button" class="pos" data-pos="Attack"><svg class="icono"><use href="#i-diana"/></svg>Delantero</button>
+                    <button type="button" class="pos" data-pos="Midfield"><svg class="icono"><use href="#i-flechas"/></svg>Volante</button>
+                    <button type="button" class="pos" data-pos="Defender"><svg class="icono"><use href="#i-escudo"/></svg>Defensa</button>
+                    <button type="button" class="pos" data-pos="Goalkeeper"><svg class="icono"><use href="#i-guante"/></svg>Portero</button>
+                </div>
+                <select id="posicion" class="oculto" tabindex="-1" aria-hidden="true">
+                    <option value="Attack">Attack</option>
+                    <option value="Midfield">Midfield</option>
+                    <option value="Defender" selected>Defender</option>
+                    <option value="Goalkeeper">Goalkeeper</option>
+                </select>
+
+                <div class="fila">
+                    <div>
+                        <label for="edad"><svg class="icono"><use href="#i-calendario"/></svg>Edad (años)</label>
+                        <input id="edad" type="number" min="14" max="50" value="22">
+                    </div>
+                    <div>
+                        <label for="estatura"><svg class="icono"><use href="#i-regla"/></svg>Estatura (cm)</label>
+                        <input id="estatura" type="number" min="140" max="220" value="188">
+                    </div>
+                </div>
+                <div class="ayuda"><svg class="icono"><use href="#i-info"/></svg>Si la estatura se deja vacía, la API imputa la mediana de la posición.</div>
+
+                <button id="boton" class="btn-primario" type="submit"><svg class="icono"><use href="#i-radar"/></svg><span>Analizar jugador</span></button>
+            </form>
+        </section>
+
+        <section class="card">
+            <div class="card-titulo">
+                <span class="burbuja"><svg class="icono"><use href="#i-trofeo"/></svg></span>
+                <h2>Resultado de la Predicción</h2>
+            </div>
+            <div id="resultado">
+                <div class="vacio">
+                    <svg viewBox="0 0 200 130" aria-hidden="true">
+                        <rect x="10" y="20" width="180" height="100" rx="8" fill="#12402a"/>
+                        <g fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.5">
+                            <rect x="18" y="28" width="164" height="84"/>
+                            <line x1="100" y1="28" x2="100" y2="112"/>
+                            <circle cx="100" cy="70" r="16"/>
+                        </g>
+                        <circle cx="70" cy="58" r="5" fill="#1475e1"/>
+                        <circle cx="128" cy="86" r="5" fill="#1475e1"/>
+                        <circle cx="140" cy="50" r="5" fill="#557086"/>
+                        <circle cx="96" cy="58" r="30" fill="#0f212e" fill-opacity="0.35" stroke="#00e701" stroke-width="5"/>
+                        <path d="M118 80 L146 108" stroke="#00e701" stroke-width="9" stroke-linecap="round"/>
+                        <text x="96" y="66" text-anchor="middle" font-family="Inter, Arial" font-size="24" font-weight="800" fill="#ffffff">?</text>
+                    </svg>
+                    <p>Completa los datos y presiona <strong>«Analizar jugador»</strong>.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="pasos">
+        <h3><svg class="icono"><use href="#i-rayo"/></svg>¿Cómo funciona?</h3>
+        <div class="pasos-lista">
+            <div class="paso"><span class="num">01</span><span class="ico"><svg class="icono"><use href="#i-base"/></svg></span><strong>Datos en MySQL</strong><p>Se extraen 41.495 jugadores con posición, edad, estatura y valor de mercado.</p></div>
+            <div class="paso"><span class="num">02</span><span class="ico"><svg class="icono"><use href="#i-arbol"/></svg></span><strong>Random Forest</strong><p>200 árboles optimizados con GridSearchCV y pesos balanceados para no ignorar a la clase Élite.</p></div>
+            <div class="paso"><span class="num">03</span><span class="ico"><svg class="icono"><use href="#i-api"/></svg></span><strong>API REST</strong><p>FastAPI recibe el JSON en <code>POST /predict</code>, imputa y codifica igual que en el entrenamiento.</p></div>
+            <div class="paso"><span class="num">04</span><span class="ico"><svg class="icono"><use href="#i-monitor"/></svg></span><strong>Decisión</strong><p>El analista ve la probabilidad y una recomendación para priorizar su seguimiento.</p></div>
+        </div>
+    </section>
+
+    <footer>
+        Radar Élite · Universidad Cooperativa de Colombia · Ingeniería de Sistemas · Electiva II – Minería de Datos
+    </footer>
+
+    <script>
+        // Si la página se abre como archivo local se usa la URL por defecto de uvicorn
+        const API_URL = location.protocol.startsWith('http') ? location.origin : 'http://127.0.0.1:8000';
+
+        const formulario = document.getElementById('formulario');
+        const boton = document.getElementById('boton');
+        const resultado = document.getElementById('resultado');
+        const estadoApi = document.getElementById('estado-api');
+        const selectPosicion = document.getElementById('posicion');
+        const botonesPosicion = document.querySelectorAll('.pos');
+
+        const POSICIONES = {
+            Attack: { nombre: 'Delantero', icono: 'i-diana' },
+            Midfield: { nombre: 'Volante', icono: 'i-flechas' },
+            Defender: { nombre: 'Defensa', icono: 'i-escudo' },
+            Goalkeeper: { nombre: 'Portero', icono: 'i-guante' },
+        };
+
+        const icono = (id) => `<svg class="icono"><use href="#${id}"/></svg>`;
+
+        // Las tarjetas de posición controlan el <select> que se envía a la API
+        function marcarPosicion() {
+            botonesPosicion.forEach(b => b.classList.toggle('activa', b.dataset.pos === selectPosicion.value));
+        }
+        botonesPosicion.forEach(b => b.addEventListener('click', () => {
+            selectPosicion.value = b.dataset.pos;
+            marcarPosicion();
+        }));
+        selectPosicion.addEventListener('change', marcarPosicion);
+        marcarPosicion();
+
+        fetch(`${API_URL}/health`)
+            .then(r => r.json())
+            .then(d => { estadoApi.innerHTML = `<span class="punto on"></span>API conectada · AUC ${d.auc_test}`; })
+            .catch(() => { estadoApi.innerHTML = '<span class="punto off"></span>API no disponible'; });
+
+        formulario.addEventListener('submit', async (evento) => {
+            evento.preventDefault();
+
+            const edad = document.getElementById('edad').value;
+            const estatura = document.getElementById('estatura').value;
+            const datos = {
+                jugador: document.getElementById('jugador').value,
+                posicion: selectPosicion.value,
+                edad: edad === '' ? null : Number(edad),
+                estatura_cm: estatura === '' ? null : Number(estatura),
+            };
+
+            boton.disabled = true;
+            boton.querySelector('span').textContent = 'Analizando...';
+
+            try {
+                const respuesta = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos),
+                });
+                const json = await respuesta.json();
+                if (!respuesta.ok) {
+                    throw new Error(typeof json.detail === 'string' ? json.detail : JSON.stringify(json.detail));
+                }
+                mostrarResultado(json);
+            } catch (error) {
+                resultado.innerHTML = `<p class="error">${icono('i-alerta')}Error: ${escaparHtml(error.message)}</p>`;
+            } finally {
+                boton.disabled = false;
+                boton.querySelector('span').textContent = 'Analizar jugador';
+            }
+        });
+
+        function escaparHtml(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function recomendacion(prob) {
+            if (prob >= 50) {
+                return { color: '#00e701', icono: 'i-binoculares', titulo: 'Prioridad alta',
+                         texto: 'Programar seguimiento presencial y solicitar informe técnico completo.' };
+            }
+            if (prob >= 30) {
+                return { color: '#ffc800', icono: 'i-video', titulo: 'Prioridad media',
+                         texto: 'Revisar en video y mantener en la lista de observación.' };
+            }
+            return { color: '#b1bad3', icono: 'i-archivo', titulo: 'Prioridad baja',
+                     texto: 'Archivar el perfil; reevaluar si cambian sus condiciones.' };
+        }
+
+        function mostrarResultado(r) {
+            const esElite = r.prediccion === 1;
+            const color = esElite ? '#00e701' : '#1475e1';
+            const umbral = r.umbral_elite_eur.toLocaleString('es-CO');
+            const pos = POSICIONES[r.posicion] || { nombre: r.posicion, icono: 'i-camiseta' };
+            const rec = recomendacion(r.probabilidad_elite);
+            const circunferencia = 2 * Math.PI * 52;
+
+            resultado.innerHTML = `
+                <div class="ficha">
+                    <div class="avatar" style="color:${color}; box-shadow: 0 0 0 2px ${color};">${icono('i-usuario')}</div>
+                    <div>
+                        <div class="ficha-nombre">${escaparHtml(r.jugador)}</div>
+                        <div class="ficha-pos">${icono(pos.icono)}${pos.nombre}</div>
+                    </div>
+                    <span class="etiqueta ${esElite ? 'elite' : 'estandar'}">${icono(esElite ? 'i-estrella' : 'i-usuario')}${esElite ? 'ÉLITE' : 'ESTÁNDAR'}</span>
+                </div>
+
+                <div class="medidor-zona">
+                    <div class="medidor">
+                        <svg viewBox="0 0 130 130">
+                            <circle class="pista" cx="65" cy="65" r="52"/>
+                            <circle class="arco" id="arco" cx="65" cy="65" r="52" stroke="${color}"
+                                    stroke-dasharray="${circunferencia}" stroke-dashoffset="${circunferencia}"/>
+                        </svg>
+                        <div class="medidor-texto"><strong>${r.probabilidad_elite}%</strong><small>prob. Élite</small></div>
+                    </div>
+                    <div>
+                        <div class="titulo-prob">Probabilidad de ser Élite</div>
+                        <div class="barra"><div class="barra-relleno" id="relleno">${r.probabilidad_elite}%</div></div>
+                        <div class="nota-umbral">Élite = valor de mercado ≥ ${umbral} EUR (percentil 75)</div>
+                    </div>
+                </div>
+
+                <div class="datos">
+                    <div class="dato"><span class="ico">${icono('i-calendario')}</span><div><small>Edad usada</small><strong>${r.edad} años</strong></div></div>
+                    <div class="dato"><span class="ico">${icono('i-regla')}</span><div><small>Estatura usada</small><strong>${r.estatura_cm} cm</strong></div></div>
+                </div>
+
+                <div class="recomendacion" style="background:${rec.color}14; border-color:${rec.color}; color:${rec.color};">
+                    ${icono(rec.icono)}
+                    <div><strong>${rec.titulo}</strong><span style="color:#b1bad3">${rec.texto}</span></div>
+                </div>`;
+
+            // Animación de la barra de progreso y del medidor circular
+            requestAnimationFrame(() => {
+                const relleno = document.getElementById('relleno');
+                relleno.style.background = color;
+                relleno.style.color = esElite ? '#05121a' : '#ffffff';
+                relleno.style.width = Math.max(r.probabilidad_elite, 14) + '%';
+                document.getElementById('arco').style.strokeDashoffset =
+                    circunferencia * (1 - r.probabilidad_elite / 100);
+            });
+        }
+    </script>
+</body>
+</html>
