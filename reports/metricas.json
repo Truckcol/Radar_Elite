@@ -1,0 +1,87 @@
+{
+  "registros": 41495,
+  "nulos_estatura_imputados": 2183,
+  "umbral_elite_eur": 700000.0,
+  "clase_0": 30418,
+  "clase_1": 11077,
+  "prop_elite_train": 0.2669598746836968,
+  "prop_elite_test": 0.2668996264610194,
+  "medianas_estatura": {
+    "Attack": 180.0,
+    "Defender": 184.0,
+    "Goalkeeper": 189.0,
+    "Midfield": 179.0,
+    "Missing": 179.0
+  },
+  "mediana_global_edad": 29.0,
+  "arbol_libre": {
+    "acc_train": 0.7581033859501145,
+    "acc_test": 0.7138209422822027,
+    "precision_elite": 0.391304347826087,
+    "recall_elite": 0.13002257336343115,
+    "f1_elite": 0.1951880718400542
+  },
+  "arbol_libre_profundidad": 25,
+  "arbol_libre_hojas": 2701,
+  "arbol_podado": {
+    "acc_train": 0.7330401253163031,
+    "acc_test": 0.7331003735389806,
+    "precision_elite": 0.0,
+    "recall_elite": 0.0,
+    "f1_elite": 0.0
+  },
+  "auc_arbol_podado": 0.6683568491087158,
+  "dummy_mayoritaria": {
+    "acc_train": 0.7330401253163031,
+    "acc_test": 0.7331003735389806,
+    "precision_elite": 0.0,
+    "recall_elite": 0.0,
+    "f1_elite": 0.0
+  },
+  "arbol_balanceado": {
+    "acc_train": 0.6181166405591035,
+    "acc_test": 0.6089890348234727,
+    "precision_elite": 0.3783081285444234,
+    "recall_elite": 0.7227990970654627,
+    "f1_elite": 0.4966651155576237
+  },
+  "random_forest": {
+    "acc_train": 0.6206169418002169,
+    "acc_test": 0.6075430774792143,
+    "precision_elite": 0.382392776523702,
+    "recall_elite": 0.764785553047404,
+    "f1_elite": 0.5098570353649361
+  },
+  "mejores_parametros": {
+    "class_weight": "balanced",
+    "max_depth": 8,
+    "min_samples_leaf": 5,
+    "n_estimators": 200
+  },
+  "mejor_auc_cv": 0.7024515750190954,
+  "auc_arbol": 0.6778288683784429,
+  "auc_rf": 0.6939126124401346,
+  "importancias": {
+    "edad": 0.762795684811153,
+    "estatura_cm": 0.13231144834565386,
+    "posicion_Goalkeeper": 0.07697426721083481,
+    "posicion_Missing": 0.009929338904905268,
+    "posicion_Defender": 0.009050576658038103,
+    "posicion_Midfield": 0.008938684069414875
+  },
+  "tasa_elite_posicion": {
+    "Attack": 0.29627673620279904,
+    "Midfield": 0.28203632727878686,
+    "Defender": 0.27016339625456987,
+    "Goalkeeper": 0.15275966970882224,
+    "Missing": 0.015748031496062992
+  },
+  "tasa_elite_edad": {
+    "<=20": 0.35714285714285715,
+    "21-23": 0.35206940177119106,
+    "24-26": 0.3833550819196752,
+    "27-29": 0.37044505257093474,
+    "30-32": 0.26536092244511134,
+    "33+": 0.10983666061705989
+  }
+}
